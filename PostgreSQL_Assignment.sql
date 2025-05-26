@@ -1,0 +1,51 @@
+-- Active: 1747760487163@@localhost@5432@conservation_db
+--DATABASE Created
+CREATE DATABASE conservation_db;
+
+-- All 3 table created
+-----------------------
+CREATE TABLE rangers(
+ranger_id SERIAL PRIMARY KEY,
+name VARCHAR(150) NOT NULL,
+region VARCHAR(100) NOT NULL
+
+);
+
+CREATE TABLE species(
+species_id SERIAL PRIMARY KEY,
+common_name VARCHAR(50),
+scientific_name TEXT NOT NULL,
+discovery_date DATE NOT NULL,
+conservation_status VARCHAR(20) NOT NULL
+);
+
+CREATE TABLE sightings(
+    sighting_id SERIAL PRIMARY KEY,
+    ranger_id INT NOT NULL,
+    species_id INT NOT NULL,
+    sighting_time TIMESTAMP NOT NULL,
+    location VARCHAR(50),
+    notes TEXT,
+    
+    FOREIGN KEY(ranger_id) REFERENCES rangers(ranger_id),
+    FOREIGN KEY(species_id) REFERENCES species(species_id)
+
+);
+
+--Insert DATA to table
+INSERT INTO rangers(name, region)
+    VALUES
+    ('Alice Green', 'Northern Hills'),
+    ('Bob White', 'River Delta'),
+    ('Carol King', 'Mountain Range');
+
+INSERT INTO species(common_name, scientific_name, discovery_date, conservation_status) 
+    VALUES
+    ('Snow Leopard', 'Panthera uncia', '1775-01-01', 'Endangered'),
+    ('Bengal Tiger', 'Panthera tigris tigris', '1758-01-01','Endangered'),
+    ('Red Panda', 'Ailurus fulgens', '1825-01-01', 'Vulnerable'),
+    ('Asiatic Elephant', 'Elephas maximus indicus', '1758-01-01', 'Endangered');
+
+INSERT INTO sightings()
+    VALUES
+    ();
