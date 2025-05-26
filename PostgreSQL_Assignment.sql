@@ -32,7 +32,7 @@ CREATE TABLE sightings(
 
 );
 
---Insert DATA to table
+--Insert DATA to tables
 INSERT INTO rangers(name, region)
     VALUES
     ('Alice Green', 'Northern Hills'),
@@ -52,34 +52,77 @@ INSERT INTO sightings(ranger_id, species_id, sighting_time, location, notes )
     (1, 1, '2024-05-10 07:45:00', 'Peak Ridge' ,'Camera trap image captured'),
     (2, 2, '2024-05-12 16:20:00', 'Bankwood Area' ,'Juvenile seen'),
     (3, 3, '2024-05-15 09:10:00', 'Bamboo Grove East' ,'Feeding observed'),
-    (1, 2, '2024-05-18 18:30:00', 'Snowfall Pass', NULL);
+    (2, 1, '2024-05-18 18:30:00', 'Snowfall Pass', NULL);
 
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --PROBLEMS (TOTAL - 09)
 
--- 01. Register a new ranger with provided data with name = 'Derek Fox' and region = 'Coastal Plains'
+-- Problem 01 ----------------------------------------------- 
 
 INSERT INTO rangers(name, region)
     VALUES('Derek Fox', 'Coastal Plains');
 
 
--- 02. Count unique species ever sighted.
+-- Problem 02 -------------------------------------------------------
 SELECT COUNT(DISTINCT species_id) AS  unique_species_count FROM sightings
 
 
--- 03. Find all sightings where the location includes "Pass".
+-- Problem 03 ------------------------------------------------------
 SELECT * FROM sightings WHERE "location" LIKE '%Pass%'  ;
 
--- 04. List each ranger's name and their total number of sightings.
+-- Problem 04 ----------------------------------------------------
 
 SELECT rangers.name, COUNT(sightings.species_id) AS  total_sightings
 FROM rangers
 JOIN sightings
 ON rangers.ranger_id = sightings.ranger_id
-GROUP BY rangers.name;
+GROUP BY rangers.name 
+ORDER BY rangers.name ASC;
+
+-- Problem 05 -----------------------------------------------------
+SELECT species.common_name
+FROM species
+LEFT JOIN sightings
+ON species.species_id = sightings.species_id
+WHERE sightings.species_id IS NULL;
+
+-- Problem 06 -----------------------------------------------------
+SELECT  species.common_name, sightings.sighting_time, rangers.name 
+FROM species
+JOIN sightings ON species.species_id = sightings.species_id
+JOIN rangers ON rangers.ranger_id = sightings.ranger_id
+ORDER BY sightings.sighting_time DESC 
+LIMIT 2;
+
+-- Problem 07 ---------------------------------------
+UPDATE species SET conservation_status = 'Historic' WHERE discovery_date < '1799-12-31';
+
+-- Problem 08 ------------------------
+CREATE OR REPLACE FUNCTION time_in_day(ts TIMESTAMP)
+RETURNS TEXT AS $$
+BEGIN
+  IF EXTRACT(HOUR FROM ts) < 12 THEN
+    RETURN 'Morning';
+  ELSIF EXTRACT(HOUR FROM ts) BETWEEN 12 AND 17 THEN
+    RETURN 'Afternoon';
+  ELSE
+    RETURN 'Evening';
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT sighting_id, time_in_day(sighting_time) AS time_of_day FROM sightings;
 
 
-select * FROM species;
+-- problem 09 ------------------------------------- 
+DELETE FROM rangers
+WHERE ranger_id IN (
+        SELECT rangers.ranger_id 
+        FROM rangers 
+        LEFT JOIN sightings ON rangers.ranger_id = sightings.ranger_id
+        WHERE sightings.ranger_id IS NULL
+);
+
 
